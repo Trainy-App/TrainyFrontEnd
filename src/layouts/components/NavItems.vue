@@ -15,7 +15,7 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue'
     <VerticalNavLink
       :item="{
         title: 'Analytics',
-        to: '/dashboard',
+        to: '/default/dashboard',
       }"
     />
   </VerticalNavGroup>
@@ -71,7 +71,7 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue'
     :item="{
       title: 'Account Settings',
       icon: 'ri-user-settings-line',
-      to: '/account-settings',
+      to: '/default/account-settings',
     }"
   />
 
@@ -79,21 +79,21 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue'
     :item="{
       title: 'Login',
       icon: 'ri-login-box-line',
-      to: '/login',
+      to: '/blank/login',
     }"
   />
   <VerticalNavLink
     :item="{
       title: 'Register',
       icon: 'ri-user-add-line',
-      to: '/register',
+      to: '/blank/register',
     }"
   />
   <VerticalNavLink
     :item="{
       title: 'Error',
       icon: 'ri-information-line',
-      to: '/no-existence',
+      to: '/default/no-existence',
     }"
   />
 
@@ -107,21 +107,21 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue'
     :item="{
       title: 'Typography',
       icon: 'ri-text',
-      to: '/typography',
+      to: '/default/typography',
     }"
   />
   <VerticalNavLink
     :item="{
       title: 'Icons',
       icon: 'ri-remixicon-line',
-      to: '/icons',
+      to: '/default/icons',
     }"
   />
   <VerticalNavLink
     :item="{
       title: 'Cards',
       icon: 'ri-bar-chart-box-line',
-      to: '/cards',
+      to: '/default/cards',
     }"
   />
 
@@ -135,7 +135,7 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue'
     :item="{
       title: 'Form Layouts',
       icon: 'ri-layout-4-line',
-      to: '/form-layouts',
+      to: '/default/form-layouts',
     }"
   />
   <!-- <VerticalNavLink
@@ -162,7 +162,7 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue'
     :item="{
       title: 'Tables',
       icon: 'ri-table-alt-line',
-      to: '/tables',
+      to: '/default/tables',
     }"
   />
 
