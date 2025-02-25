@@ -1,7 +1,6 @@
 export const routes = [
-  { path: '/', redirect: '/dashboard' },
   {
-    path: '/',
+    path: '/default/',
     component: () => import('@/layouts/default.vue'),
     children: [
       {
@@ -35,7 +34,7 @@ export const routes = [
     ],
   },
   {
-    path: '/',
+    path: '/blank/',
     component: () => import('@/layouts/blank.vue'),
     children: [
       {
@@ -49,6 +48,10 @@ export const routes = [
       {
         path: '/:pathMatch(.*)*',
         component: () => import('@/pages/[...error].vue'),
+      },
+      {
+        path: 'home',
+        component: () => import('@/pages/home.vue'),
       },
     ],
   },

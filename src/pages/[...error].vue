@@ -29,7 +29,7 @@ const authThemeMask = computed(() => {
         class="mx-auto"
       />
       <VBtn
-        to="/"
+        to="/blank/home"
         class="mt-10"
       >
         Back to Home
