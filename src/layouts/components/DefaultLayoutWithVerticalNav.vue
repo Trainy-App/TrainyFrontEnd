@@ -1,6 +1,6 @@
 <script setup>
+import { Dumbbell } from 'lucide-vue-next'
 import NavItems from '@/layouts/components/NavItems.vue'
-import logo from '@images/logo.svg?raw'
 import VerticalNavLayout from '@layouts/components/VerticalNavLayout.vue'
 
 // Components
@@ -63,12 +63,7 @@ import UserProfile from '@/layouts/components/UserProfile.vue'
         to="/"
         class="app-logo app-title-wrapper"
       >
-        <!-- eslint-disable vue/no-v-html -->
-        <div
-          class="d-flex"
-          v-html="logo"
-        />
-        <!-- eslint-enable -->
+        <Dumbbell class="app-logo-icon" />
 
         <h1 class="font-weight-medium leading-normal text-xl text-uppercase">
           Trainy
@@ -111,6 +106,12 @@ import UserProfile from '@/layouts/components/UserProfile.vue'
   display: flex;
   align-items: center;
   column-gap: 0.75rem;
+  
+  .app-logo-icon {
+    width: 24px;
+    height: 24px;
+    color: var(--v-theme-primary);
+  }
 
   .app-logo-title {
     font-size: 1.25rem;

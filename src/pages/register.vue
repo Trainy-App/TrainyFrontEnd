@@ -1,5 +1,6 @@
 <script setup>
 import { useTheme } from 'vuetify'
+import { Dumbbell } from 'lucide-vue-next'
 import AuthProvider from '@/views/pages/authentication/AuthProvider.vue'
 import logo from '@images/logo.svg?raw'
 import authV1MaskDark from '@images/pages/auth-v1-mask-dark.png'
@@ -37,23 +38,14 @@ const isPasswordVisible = ref(false)
           class="d-flex align-center gap-3"
         >
           <!-- eslint-disable vue/no-v-html -->
-          <div
-            class="d-flex"
-            v-html="logo"
-          />
-          <h2 class="font-weight-medium text-2xl text-uppercase">
-            Materio
-          </h2>
+          <Dumbbell />
+          <h2 class="font-weight-medium text-2xl text-uppercase">Trainy</h2>
         </RouterLink>
       </VCardItem>
 
       <VCardText class="pt-2">
-        <h4 class="text-h4 mb-1">
-          Adventure starts here 🚀
-        </h4>
-        <p class="mb-0">
-          Make your app management easy and fun!
-        </p>
+        <h4 class="text-h4 mb-1">Seu Treino Está Aqui 🚀</h4>
+        <p class="mb-0">Faça o monitoramento do seu treino aqui!</p>
       </VCardText>
 
       <VCardText>
@@ -96,13 +88,14 @@ const isPasswordVisible = ref(false)
                 />
                 <VLabel
                   for="privacy-policy"
-                  style="opacity: 1;"
+                  style="opacity: 1"
                 >
-                  <span class="me-1">I agree to</span>
+                  <span class="me-1">Eu aceito os</span>
                   <a
                     href="javascript:void(0)"
                     class="text-primary"
-                  >privacy policy & terms</a>
+                    >termos de politica e privacidade</a
+                  >
                 </VLabel>
               </div>
 
@@ -115,17 +108,15 @@ const isPasswordVisible = ref(false)
               </VBtn>
             </VCol>
 
-            <!-- login instead -->
             <VCol
               cols="12"
               class="text-center text-base"
             >
-              <span>Already have an account?</span>
+              <span>Já tem uma conta?</span>
               <RouterLink
                 class="text-primary ms-2"
-                to="login"
-              >
-                Sign in instead
+                to="/blank/login"
+                >Faça o Login
               </RouterLink>
             </VCol>
 
@@ -149,27 +140,9 @@ const isPasswordVisible = ref(false)
         </VForm>
       </VCardText>
     </VCard>
-
-    <VImg
-      class="auth-footer-start-tree d-none d-md-block"
-      :src="authV1Tree"
-      :width="250"
-    />
-
-    <VImg
-      :src="authV1Tree2"
-      class="auth-footer-end-tree d-none d-md-block"
-      :width="350"
-    />
-
-    <!-- bg img -->
-    <VImg
-      class="auth-footer-mask d-none d-md-block"
-      :src="authThemeMask"
-    />
   </div>
 </template>
 
 <style lang="scss">
-@use "@core/scss/template/pages/page-auth";
+@use '@core/scss/template/pages/page-auth';
 </style>

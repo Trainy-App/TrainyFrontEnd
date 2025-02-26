@@ -1,5 +1,6 @@
 <script setup>
 import { useTheme } from 'vuetify'
+import { Dumbbell } from 'lucide-vue-next'
 import AuthProvider from '@/views/pages/authentication/AuthProvider.vue'
 import logo from '@images/logo.svg?raw'
 import authV1MaskDark from '@images/pages/auth-v1-mask-dark.png'
@@ -23,8 +24,6 @@ const isPasswordVisible = ref(false)
 </script>
 
 <template>
-  <!-- eslint-disable vue/no-v-html -->
-
   <div class="auth-wrapper d-flex align-center justify-center pa-4">
     <VCard
       class="auth-card pa-4 pt-7"
@@ -35,24 +34,14 @@ const isPasswordVisible = ref(false)
           to="/"
           class="d-flex align-center gap-3"
         >
-          <!-- eslint-disable vue/no-v-html -->
-          <div
-            class="d-flex"
-            v-html="logo"
-          />
-          <h2 class="font-weight-medium text-2xl text-uppercase">
-            Materio
-          </h2>
+          <Dumbbell />
+          <h2 class="font-weight-medium text-2xl text-uppercase">Trainy</h2>
         </RouterLink>
       </VCardItem>
 
       <VCardText class="pt-2">
-        <h4 class="text-h4 mb-1">
-          Welcome to Materio! 👋🏻
-        </h4>
-        <p class="mb-0">
-          Please sign-in to your account and start the adventure
-        </p>
+        <h4 class="text-h4 mb-1">Bem Vindo ao Trainy! 👋🏻</h4>
+        <p class="mb-0">Por favor, faça o login e venha treinar</p>
       </VCardText>
 
       <VCardText>
@@ -83,14 +72,14 @@ const isPasswordVisible = ref(false)
               <div class="d-flex align-center justify-space-between flex-wrap my-6">
                 <VCheckbox
                   v-model="form.remember"
-                  label="Remember me"
+                  label="Lembre-me"
                 />
 
                 <a
                   class="text-primary"
                   href="javascript:void(0)"
                 >
-                  Forgot Password?
+                  Esqueci Minha Senha
                 </a>
               </div>
 
@@ -109,12 +98,12 @@ const isPasswordVisible = ref(false)
               cols="12"
               class="text-center text-base"
             >
-              <span>New on our platform?</span>
+              <span>Não tem uma conta?</span>
               <RouterLink
                 class="text-primary ms-2"
-                to="/register"
+                to="/blank/register"
               >
-                Create an account
+                Crie Sua Conta
               </RouterLink>
             </VCol>
 
@@ -127,7 +116,6 @@ const isPasswordVisible = ref(false)
               <VDivider />
             </VCol>
 
-            <!-- auth providers -->
             <VCol
               cols="12"
               class="text-center"
@@ -139,26 +127,10 @@ const isPasswordVisible = ref(false)
       </VCardText>
     </VCard>
 
-    <VImg
-      class="auth-footer-start-tree d-none d-md-block"
-      :src="authV1Tree"
-      :width="250"
-    />
 
-    <VImg
-      :src="authV1Tree2"
-      class="auth-footer-end-tree d-none d-md-block"
-      :width="350"
-    />
-
-    <!-- bg img -->
-    <VImg
-      class="auth-footer-mask d-none d-md-block"
-      :src="authThemeMask"
-    />
   </div>
 </template>
 
 <style lang="scss">
-@use "@core/scss/template/pages/page-auth";
+@use '@core/scss/template/pages/page-auth';
 </style>
