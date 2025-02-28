@@ -1,10 +1,100 @@
 <script setup>
+import UserService from '@/services/auth/user.service'
+import { useAuthStore } from '@/stores'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const authStore = useAuthStore()
+
+const passwordForm = ref({
+  currentPassword: '',
+  newPassword: '',
+  confirmPassword: '',
+})
+
+const deleteAccountForm = ref({
+  password: '',
+  confirmDelete: false,
+})
+
 const isCurrentPasswordVisible = ref(false)
 const isNewPasswordVisible = ref(false)
 const isConfirmPasswordVisible = ref(false)
-const currentPassword = ref('12345678')
-const newPassword = ref('87654321')
-const confirmPassword = ref('87654321')
+const error = ref('')
+const success = ref('')
+const loading = ref(false)
+
+const resetPasswordForm = () => {
+  passwordForm.value = {
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  }
+  error.value = ''
+  success.value = ''
+}
+
+const handleChangePassword = async () => {
+  try {
+    error.value = ''
+    success.value = ''
+    loading.value = true
+
+    // Validações
+    if (!passwordForm.value.currentPassword || !passwordForm.value.newPassword || !passwordForm.value.confirmPassword) {
+      error.value = 'Todos os campos são obrigatórios'
+      return
+    }
+
+    if (passwordForm.value.newPassword !== passwordForm.value.confirmPassword) {
+      error.value = 'As senhas não coincidem'
+      return
+    }
+
+    if (passwordForm.value.newPassword.length < 8) {
+      error.value = 'A nova senha deve ter pelo menos 8 caracteres'
+      return
+    }
+
+    await UserService.changePassword({
+      currentPassword: passwordForm.value.currentPassword,
+      newPassword: passwordForm.value.newPassword,
+    })
+
+    success.value = 'Senha alterada com sucesso!'
+    resetPasswordForm()
+  } catch (err) {
+    error.value = err.old_password || err.new_password || 'Erro ao alterar senha. Tente novamente.'
+  } finally {
+    loading.value = false
+  }
+}
+
+const handleDeleteAccount = async () => {
+  try {
+    error.value = ''
+    loading.value = true
+
+    if (!deleteAccountForm.value.password) {
+      error.value = 'Digite sua senha para confirmar'
+      return
+    }
+
+    if (!deleteAccountForm.value.confirmDelete) {
+      error.value = 'Você precisa confirmar que deseja excluir sua conta'
+      return
+    }
+
+    await UserService.deleteAccount()
+    await authStore.logout()
+    router.push('/login')
+  } catch (err) {
+    error.value = err.password || 'Erro ao excluir conta. Tente novamente.'
+  } finally {
+    loading.value = false
+  }
+}
 
 const passwordRequirements = [
   'Minimum 8 characters long - the more, the better',
@@ -118,132 +208,126 @@ const recentDevices = [
 
 <template>
   <VRow>
-    <!-- SECTION: Change Password -->
+    <!-- Alterar Senha -->
     <VCol cols="12">
-      <VCard title="Change Password">
-        <VForm>
-          <VCardText>
-            <!-- 👉 Current Password -->
-            <VRow class="mb-3">
-              <VCol
-                cols="12"
-                md="6"
-              >
-                <!-- 👉 current password -->
+      <VCard title="Alterar Senha">
+        <VCardText>
+          <VForm @submit.prevent="handleChangePassword">
+            <VRow>
+              <!-- Senha Atual -->
+              <VCol cols="12">
                 <VTextField
-                  v-model="currentPassword"
+                  v-model="passwordForm.currentPassword"
                   :type="isCurrentPasswordVisible ? 'text' : 'password'"
+                  label="Senha Atual"
                   :append-inner-icon="isCurrentPasswordVisible ? 'ri-eye-off-line' : 'ri-eye-line'"
-                  autocomplete="on"
-                  label="Current Password"
-                  placeholder="············"
                   @click:append-inner="isCurrentPasswordVisible = !isCurrentPasswordVisible"
+                  :error-messages="error"
                 />
               </VCol>
-            </VRow>
 
-            <!-- 👉 New Password -->
-            <VRow>
-              <VCol
-                cols="12"
-                md="6"
-              >
-                <!-- 👉 new password -->
+              <!-- Nova Senha -->
+              <VCol cols="12">
                 <VTextField
-                  v-model="newPassword"
+                  v-model="passwordForm.newPassword"
                   :type="isNewPasswordVisible ? 'text' : 'password'"
+                  label="Nova Senha"
                   :append-inner-icon="isNewPasswordVisible ? 'ri-eye-off-line' : 'ri-eye-line'"
-                  label="New Password"
-                  autocomplete="on"
-                  placeholder="············"
                   @click:append-inner="isNewPasswordVisible = !isNewPasswordVisible"
                 />
               </VCol>
 
-              <VCol
-                cols="12"
-                md="6"
-              >
-                <!-- 👉 confirm password -->
+              <!-- Confirmar Nova Senha -->
+              <VCol cols="12">
                 <VTextField
-                  v-model="confirmPassword"
+                  v-model="passwordForm.confirmPassword"
                   :type="isConfirmPasswordVisible ? 'text' : 'password'"
+                  label="Confirmar Nova Senha"
                   :append-inner-icon="isConfirmPasswordVisible ? 'ri-eye-off-line' : 'ri-eye-line'"
-                  autocomplete="on"
-                  label="Confirm New Password"
-                  placeholder="············"
                   @click:append-inner="isConfirmPasswordVisible = !isConfirmPasswordVisible"
                 />
               </VCol>
-            </VRow>
-          </VCardText>
 
-          <!-- 👉 Password Requirements -->
-          <VCardText>
-            <p class="text-base font-weight-medium mt-2">
-              Password Requirements:
-            </p>
-
-            <ul class="d-flex flex-column gap-y-3">
-              <li
-                v-for="item in passwordRequirements"
-                :key="item"
-                class="d-flex"
+              <!-- Mensagem de Sucesso -->
+              <VCol
+                v-if="success"
+                cols="12"
               >
-                <div>
-                  <VIcon
-                    size="7"
-                    icon="ri-checkbox-blank-circle-fill"
-                    class="me-3"
-                  />
-                </div>
-                <span class="font-weight-medium">{{ item }}</span>
-              </li>
-            </ul>
-          </VCardText>
+                <VAlert
+                  color="success"
+                  variant="tonal"
+                >
+                  {{ success }}
+                </VAlert>
+              </VCol>
 
-          <!-- 👉 Action Buttons -->
-          <VCardText class="d-flex flex-wrap gap-4">
-            <VBtn>Save changes</VBtn>
-
-            <VBtn
-              type="reset"
-              color="secondary"
-              variant="outlined"
-            >
-              Reset
-            </VBtn>
-          </VCardText>
-        </VForm>
-      </VCard>
-    </VCol>
-    <!-- !SECTION -->
-
-    <!-- SECTION Two-steps verification -->
-    <VCol cols="12">
-      <VCard title="Two-steps verification">
-        <VCardText>
-          <p class="font-weight-semibold">
-            Two factor authentication is not enabled yet.
-          </p>
-          <p>
-            Two-factor authentication adds an additional layer of security to your account by requiring more than just a password to log in.
-            <a
-              href="javascript:void(0)"
-              class="text-decoration-none"
-            >Learn more.</a>
-          </p>
-
-          <VBtn>
-            Enable two-factor authentication
-          </VBtn>
+              <!-- Botões -->
+              <VCol cols="12">
+                <VBtn
+                  type="submit"
+                  :loading="loading"
+                >
+                  Alterar Senha
+                </VBtn>
+              </VCol>
+            </VRow>
+          </VForm>
         </VCardText>
       </VCard>
     </VCol>
-    <!-- !SECTION -->
 
+    <!-- Excluir Conta -->
     <VCol cols="12">
-      <!-- SECTION: Create an API key -->
+      <VCard
+        title="Excluir Conta"
+        color="error"
+        variant="outlined"
+      >
+        <VCardText>
+          <p class="mb-4">
+            Ao excluir sua conta, todos os seus dados serão permanentemente removidos. Esta ação não pode ser desfeita.
+          </p>
+
+          <VForm @submit.prevent="handleDeleteAccount">
+            <VRow>
+              <!-- Senha -->
+              <VCol cols="12">
+                <VTextField
+                  v-model="deleteAccountForm.password"
+                  type="password"
+                  label="Digite sua senha para confirmar"
+                  :error-messages="error"
+                />
+              </VCol>
+
+              <!-- Confirmação -->
+              <VCol cols="12">
+                <VCheckbox
+                  v-model="deleteAccountForm.confirmDelete"
+                  label="Eu confirmo que desejo excluir permanentemente minha conta"
+                  color="error"
+                />
+              </VCol>
+
+              <!-- Botão -->
+              <VCol cols="12">
+                <VBtn
+                  type="submit"
+                  color="error"
+                  :loading="loading"
+                  :disabled="!deleteAccountForm.confirmDelete"
+                >
+                  Excluir Conta
+                </VBtn>
+              </VCol>
+            </VRow>
+          </VForm>
+        </VCardText>
+      </VCard>
+    </VCol>
+
+    <!-- SECTION: Create an API key -->
+    <VCol cols="12">
       <VCard title="Create an API key">
         <VRow>
           <!-- 👉 Choose API Key -->
@@ -261,7 +345,14 @@ const recentDevices = [
                     <VSelect
                       label="Choose the API key type you want to create"
                       placeholder="Select API key type"
-                      :items="['Full Control', 'Modify', 'Read & Execute', 'List Folder Contents', 'Read Only', 'Read & Write']"
+                      :items="[
+                        'Full Control',
+                        'Modify',
+                        'Read & Execute',
+                        'List Folder Contents',
+                        'Read Only',
+                        'Read & Write',
+                      ]"
                     />
                   </VCol>
 
@@ -288,14 +379,15 @@ const recentDevices = [
           </VCol>
         </VRow>
       </VCard>
-    <!-- !SECTION -->
     </VCol>
 
     <VCol cols="12">
       <!-- SECTION: API Keys List -->
       <VCard title="API Key List &amp; Access">
         <VCardText>
-          An API key is a simple encrypted string that identifies an application without any principal. They are useful for accessing public data anonymously, and are used to associate API requests with your project for quota and billing.
+          An API key is a simple encrypted string that identifies an application without any principal. They are useful
+          for accessing public data anonymously, and are used to associate API requests with your project for quota and
+          billing.
         </VCardText>
 
         <!-- 👉 Server Status -->
@@ -328,7 +420,6 @@ const recentDevices = [
           </div>
         </VCardText>
       </VCard>
-      <!-- !SECTION -->
     </VCol>
 
     <!-- SECTION Recent Devices -->
@@ -358,6 +449,5 @@ const recentDevices = [
         </VDataTable>
       </VCard>
     </VCol>
-    <!-- !SECTION -->
   </VRow>
 </template>

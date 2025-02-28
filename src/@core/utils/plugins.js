@@ -42,9 +42,37 @@ export const registerPlugins = app => {
   const imports = import.meta.glob(['../../plugins/*.{ts,js}', '../../plugins/*/index.{ts,js}'], { eager: true })
   const importPaths = Object.keys(imports).sort()
 
-  importPaths.forEach(path => {
-    const pluginImportModule = imports[path]
+  const loadedPlugins = new Set()
 
-    pluginImportModule.default?.(app)
+  // Primeiro registra plugins essenciais (router, pinia, etc)
+  const essentialPlugins = ['router', 'pinia', 'vuetify']
+  essentialPlugins.forEach(pluginName => {
+    const path = importPaths.find(p => p.includes(pluginName))
+    if (path && !loadedPlugins.has(path)) {
+      try {
+        const pluginModule = imports[path]
+        if (typeof pluginModule.default === 'function') {
+          pluginModule.default(app)
+          loadedPlugins.add(path)
+        }
+      } catch (error) {
+        console.error(`Error loading essential plugin ${pluginName}:`, error)
+      }
+    }
+  })
+
+  // Depois registra os outros plugins
+  importPaths.forEach(path => {
+    if (!loadedPlugins.has(path)) {
+      try {
+        const pluginModule = imports[path]
+        if (typeof pluginModule.default === 'function') {
+          pluginModule.default(app)
+          loadedPlugins.add(path)
+        }
+      } catch (error) {
+        console.error(`Error loading plugin from ${path}:`, error)
+      }
+    }
   })
 }

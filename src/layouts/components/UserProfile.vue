@@ -13,7 +13,7 @@ const userPhoto = computed(() => isAuthenticated.value ? authStore.state.user.ph
 
 const logout = () => {
   authStore.logout()
-  router.push('/blank/login')
+  router.push('/login')
 }
 </script>
 

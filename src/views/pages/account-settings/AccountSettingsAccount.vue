@@ -1,46 +1,56 @@
 <script setup>
-import avatar1 from '@images/avatars/avatar-1.png'
+import { useAuthStore } from '@/stores'
+import { computed, onMounted, ref } from 'vue'
 
-const accountData = {
-  avatarImg: avatar1,
-  firstName: 'john',
-  lastName: 'Doe',
-  email: 'johnDoe@example.com',
-  org: 'ThemeSelection',
-  phone: '+1 (917) 543-9876',
-  address: '123 Main St, New York, NY 10001',
-  state: 'New York',
-  zip: '10001',
-  country: 'USA',
-  language: 'English',
-  timezone: '(GMT-11:00) International Date Line West',
-  currency: 'USD',
-}
-
+const authStore = useAuthStore()
 const refInputEl = ref()
-const accountDataLocal = ref(structuredClone(accountData))
-const isAccountDeactivated = ref(false)
 
-const resetForm = () => {
-  accountDataLocal.value = structuredClone(accountData)
-}
+// Computed para facilitar o acesso aos dados do usuário
+const userData = computed(() => authStore.state.user)
 
-const changeAvatar = file => {
-  const fileReader = new FileReader()
-  const { files } = file.target
-  if (files && files.length) {
-    fileReader.readAsDataURL(files[0])
-    fileReader.onload = () => {
-      if (typeof fileReader.result === 'string')
-        accountDataLocal.value.avatarImg = fileReader.result
-    }
+const accountDataLocal = ref({
+  name: userData.value.name,
+  username: userData.value.username,
+  email: userData.value.email,
+  profile_picture: userData.value.profile_picture,
+})
+
+const imagePreview = ref(userData.value.profile_picture)
+
+const handleImageUpload = event => {
+  const file = event.target.files[0]
+  if (file) {
+    // Preview da imagem
+    accountDataLocal.value.profile_picture = URL.createObjectURL(file)
+    imagePreview.value = URL.createObjectURL(file)
   }
 }
 
-// reset avatar image
-const resetAvatar = () => {
-  accountDataLocal.value.avatarImg = accountData.avatarImg
+const resetForm = () => {
+  accountDataLocal.value = {
+    name: userData.value.name,
+    username: userData.value.username,
+    email: userData.value.email,
+    profile_picture: userData.value.profile_picture,
+  }
+  imagePreview.value = userData.value.profile_picture
 }
+
+const handleSubmit = async () => {
+  try {
+    await authStore.updateProfile(accountDataLocal.value)
+    // Atualiza a preview da imagem após o sucesso
+    imagePreview.value = authStore.state.user.profile_picture
+  } catch (error) {
+    console.error('Erro ao atualizar dados:', error)
+  }
+}
+
+// Carrega os dados do perfil ao montar o componente
+onMounted(async () => {
+  await authStore.loadProfile()
+  resetForm()
+})
 
 const timezones = [
   '(GMT-11:00) International Date Line West',
@@ -84,36 +94,31 @@ const timezones = [
   '(GMT+00:00) London',
 ]
 
-const currencies = [
-  'USD',
-  'EUR',
-  'GBP',
-  'AUD',
-  'BRL',
-  'CAD',
-  'CNY',
-  'CZK',
-  'DKK',
-  'HKD',
-  'HUF',
-  'INR',
-]
+const currencies = ['USD', 'EUR', 'GBP', 'AUD', 'BRL', 'CAD', 'CNY', 'CZK', 'DKK', 'HKD', 'HUF', 'INR']
 </script>
 
 <template>
   <VRow>
     <VCol cols="12">
-      <VCard title="Account Details">
+      <VCard title="Detalhes da Conta">
         <VCardText class="d-flex">
-          <!-- 👉 Avatar -->
-          <VAvatar
-            rounded="lg"
-            size="100"
-            class="me-6"
-            :image="accountDataLocal.avatarImg"
-          />
+          <!-- Avatar -->
+          <div class="me-6">
+            <VAvatar
+              rounded="lg"
+              size="100"
+              :image="imagePreview"
+            >
+              <VIcon
+                v-if="!imagePreview"
+                size="48"
+                icon="ri-user-line"
+                color="primary"
+              />
+            </VAvatar>
+          </div>
 
-          <!-- 👉 Upload Photo -->
+          <!-- Upload Photo -->
           <form class="d-flex flex-column justify-center gap-5">
             <div class="d-flex flex-wrap gap-2">
               <VBtn
@@ -124,69 +129,57 @@ const currencies = [
                   icon="ri-upload-cloud-line"
                   class="d-sm-none"
                 />
-                <span class="d-none d-sm-block">Upload new photo</span>
+                <span class="d-none d-sm-block">Alterar foto</span>
               </VBtn>
 
               <input
                 ref="refInputEl"
                 type="file"
-                name="file"
-                accept=".jpeg,.png,.jpg,GIF"
+                accept="image/*"
                 hidden
-                @input="changeAvatar"
-              >
-
-              <VBtn
-                type="reset"
-                color="error"
-                variant="outlined"
-                @click="resetAvatar"
-              >
-                <span class="d-none d-sm-block">Reset</span>
-                <VIcon
-                  icon="ri-refresh-line"
-                  class="d-sm-none"
-                />
-              </VBtn>
+                @input="handleImageUpload"
+              />
             </div>
 
-            <p class="text-body-1 mb-0">
-              Allowed JPG, GIF or PNG. Max size of 800K
-            </p>
+            <p class="text-body-1 mb-0">Permitido JPG, PNG. Tamanho máximo de 2MB</p>
           </form>
         </VCardText>
 
         <VDivider />
 
         <VCardText>
-          <!-- 👉 Form -->
-          <VForm class="mt-6">
+          <!-- Form -->
+          <VForm
+            class="mt-6"
+            @submit.prevent="handleSubmit"
+          >
             <VRow>
-              <!-- 👉 First Name -->
+              <!-- Nome Completo -->
               <VCol
                 md="6"
                 cols="12"
               >
                 <VTextField
-                  v-model="accountDataLocal.firstName"
-                  placeholder="John"
-                  label="First Name"
+                  v-model="accountDataLocal.name"
+                  label="Nome Completo"
+                  placeholder="John Doe"
                 />
               </VCol>
 
-              <!-- 👉 Last Name -->
+              <!-- Nome de Usuário -->
               <VCol
                 md="6"
                 cols="12"
               >
                 <VTextField
-                  v-model="accountDataLocal.lastName"
-                  placeholder="Doe"
-                  label="Last Name"
+                  v-model="accountDataLocal.username"
+                  label="Nome de Usuário"
+                  placeholder="johndoe"
+                  disabled
                 />
               </VCol>
 
-              <!-- 👉 Email -->
+              <!-- Email -->
               <VCol
                 cols="12"
                 md="6"
@@ -194,139 +187,29 @@ const currencies = [
                 <VTextField
                   v-model="accountDataLocal.email"
                   label="E-mail"
-                  placeholder="johndoe@gmail.com"
+                  placeholder="johndoe@email.com"
                   type="email"
                 />
               </VCol>
 
-              <!-- 👉 Organization -->
+              <!-- Botões -->
               <VCol
                 cols="12"
-                md="6"
+                class="d-flex gap-4"
               >
-                <VTextField
-                  v-model="accountDataLocal.org"
-                  label="Organization"
-                  placeholder="ThemeSelection"
-                />
-              </VCol>
-
-              <!-- 👉 Phone -->
-              <VCol
-                cols="12"
-                md="6"
-              >
-                <VTextField
-                  v-model="accountDataLocal.phone"
-                  label="Phone Number"
-                  placeholder="+1 (917) 543-9876"
-                />
-              </VCol>
-
-              <!-- 👉 Address -->
-              <VCol
-                cols="12"
-                md="6"
-              >
-                <VTextField
-                  v-model="accountDataLocal.address"
-                  label="Address"
-                  placeholder="123 Main St, New York, NY 10001"
-                />
-              </VCol>
-
-              <!-- 👉 State -->
-              <VCol
-                cols="12"
-                md="6"
-              >
-                <VTextField
-                  v-model="accountDataLocal.state"
-                  label="State"
-                  placeholder="New York"
-                />
-              </VCol>
-
-              <!-- 👉 Zip Code -->
-              <VCol
-                cols="12"
-                md="6"
-              >
-                <VTextField
-                  v-model="accountDataLocal.zip"
-                  label="Zip Code"
-                  placeholder="10001"
-                />
-              </VCol>
-
-              <!-- 👉 Country -->
-              <VCol
-                cols="12"
-                md="6"
-              >
-                <VSelect
-                  v-model="accountDataLocal.country"
-                  label="Country"
-                  :items="['USA', 'Canada', 'UK', 'India', 'Australia']"
-                  placeholder="Select Country"
-                />
-              </VCol>
-
-              <!-- 👉 Language -->
-              <VCol
-                cols="12"
-                md="6"
-              >
-                <VSelect
-                  v-model="accountDataLocal.language"
-                  label="Language"
-                  placeholder="Select Language"
-                  :items="['English', 'Spanish', 'Arabic', 'Hindi', 'Urdu']"
-                />
-              </VCol>
-
-              <!-- 👉 Timezone -->
-              <VCol
-                cols="12"
-                md="6"
-              >
-                <VSelect
-                  v-model="accountDataLocal.timezone"
-                  label="Timezone"
-                  placeholder="Select Timezone"
-                  :items="timezones"
-                  :menu-props="{ maxHeight: 200 }"
-                />
-              </VCol>
-
-              <!-- 👉 Currency -->
-              <VCol
-                cols="12"
-                md="6"
-              >
-                <VSelect
-                  v-model="accountDataLocal.currency"
-                  label="Currency"
-                  placeholder="Select Currency"
-                  :items="currencies"
-                  :menu-props="{ maxHeight: 200 }"
-                />
-              </VCol>
-
-              <!-- 👉 Form Actions -->
-              <VCol
-                cols="12"
-                class="d-flex flex-wrap gap-4"
-              >
-                <VBtn>Save changes</VBtn>
+                <VBtn
+                  type="submit"
+                  color="primary"
+                >
+                  Salvar Alterações
+                </VBtn>
 
                 <VBtn
                   color="secondary"
                   variant="outlined"
-                  type="reset"
-                  @click.prevent="resetForm"
+                  @click="resetForm"
                 >
-                  Reset
+                  Cancelar
                 </VBtn>
               </VCol>
             </VRow>
@@ -334,27 +217,13 @@ const currencies = [
         </VCardText>
       </VCard>
     </VCol>
-
-    <VCol cols="12">
-      <!-- 👉 Deactivate Account -->
-      <VCard title="Deactivate Account">
-        <VCardText>
-          <div>
-            <VCheckbox
-              v-model="isAccountDeactivated"
-              label="I confirm my account deactivation"
-            />
-          </div>
-
-          <VBtn
-            :disabled="!isAccountDeactivated"
-            color="error"
-            class="mt-3"
-          >
-            Deactivate Account
-          </VBtn>
-        </VCardText>
-      </VCard>
-    </VCol>
   </VRow>
 </template>
+
+<style lang="scss" scoped>
+.v-card-text {
+  .v-avatar {
+    border: 2px solid rgb(var(--v-theme-primary));
+  }
+}
+</style>

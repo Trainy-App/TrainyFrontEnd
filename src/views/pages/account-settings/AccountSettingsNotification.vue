@@ -1,112 +1,158 @@
 <script setup>
-const recentDevices = ref([
-  {
-    type: 'New for you',
-    email: true,
-    browser: true,
-    app: true,
-  },
-  {
-    type: 'Account activity',
-    email: true,
-    browser: true,
-    app: true,
-  },
-  {
-    type: 'A new browser used to sign in',
-    email: true,
-    browser: true,
-    app: false,
-  },
-  {
-    type: 'A new device is linked',
-    email: true,
-    browser: false,
-    app: false,
-  },
-])
+import UserService from '@/services/auth/user.service'
+import { ref } from 'vue'
 
-const selectedNotification = ref('Only when I\'m online')
+const loading = ref(false)
+const success = ref(false)
+const error = ref('')
+
+const notifications = ref({
+  email: {
+    news: true,
+    accountActivity: true,
+    newWorkouts: true,
+    promotions: false,
+  },
+  push: {
+    news: false,
+    accountActivity: true,
+    newWorkouts: true,
+    promotions: false,
+  },
+})
+
+const handleSave = async () => {
+  try {
+    loading.value = true
+    error.value = ''
+    success.value = false
+
+    await UserService.updateNotifications(notifications.value)
+    success.value = true
+  } catch (err) {
+    error.value = 'Erro ao salvar configurações. Tente novamente.'
+    console.error('Erro:', err)
+  } finally {
+    loading.value = false
+  }
+}
 </script>
 
 <template>
-  <VCard title="Recent Devices">
+  <VCard>
     <VCardText>
-      We need permission from your browser to show notifications.
-      <a href="javascript:void(0)">Request Permission</a>
-    </VCardText>
+      <!-- Email Notifications -->
+      <VRow>
+        <VCol cols="12">
+          <h6 class="text-h6 mb-4">Notificações por Email</h6>
 
-    <VTable class="text-no-wrap">
-      <thead>
-        <tr>
-          <th scope="col">
-            Type
-          </th>
-          <th scope="col">
-            EMAIL
-          </th>
-          <th scope="col">
-            BROWSER
-          </th>
-          <th scope="col">
-            App
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="device in recentDevices"
-          :key="device.type"
+          <VRow>
+            <VCol
+              cols="12"
+              sm="6"
+            >
+              <VCheckbox
+                v-model="notifications.email.news"
+                label="Novidades e Atualizações"
+                density="comfortable"
+              />
+              <VCheckbox
+                v-model="notifications.email.accountActivity"
+                label="Atividades da Conta"
+                density="comfortable"
+              />
+            </VCol>
+
+            <VCol
+              cols="12"
+              sm="6"
+            >
+              <VCheckbox
+                v-model="notifications.email.newWorkouts"
+                label="Novos Treinos"
+                density="comfortable"
+              />
+              <VCheckbox
+                v-model="notifications.email.promotions"
+                label="Promoções e Ofertas"
+                density="comfortable"
+              />
+            </VCol>
+          </VRow>
+        </VCol>
+
+        <VDivider class="my-3" />
+
+        <!-- Push Notifications -->
+        <VCol cols="12">
+          <h6 class="text-h6 mb-4">Notificações Push</h6>
+
+          <VRow>
+            <VCol
+              cols="12"
+              sm="6"
+            >
+              <VCheckbox
+                v-model="notifications.push.news"
+                label="Novidades e Atualizações"
+                density="comfortable"
+              />
+              <VCheckbox
+                v-model="notifications.push.accountActivity"
+                label="Atividades da Conta"
+                density="comfortable"
+              />
+            </VCol>
+
+            <VCol
+              cols="12"
+              sm="6"
+            >
+              <VCheckbox
+                v-model="notifications.push.newWorkouts"
+                label="Novos Treinos"
+                density="comfortable"
+              />
+              <VCheckbox
+                v-model="notifications.push.promotions"
+                label="Promoções e Ofertas"
+                density="comfortable"
+              />
+            </VCol>
+          </VRow>
+        </VCol>
+
+        <!-- Error/Success Messages -->
+        <VCol
+          v-if="error || success"
+          cols="12"
         >
-          <td>
-            {{ device.type }}
-          </td>
-          <td>
-            <VCheckbox v-model="device.email" />
-          </td>
-          <td>
-            <VCheckbox v-model="device.browser" />
-          </td>
-          <td>
-            <VCheckbox v-model="device.app" />
-          </td>
-        </tr>
-      </tbody>
-    </VTable>
-    <VDivider />
-
-    <VCardText>
-      <VForm @submit.prevent="() => {}">
-        <p class="text-base font-weight-medium">
-          When should we send you notifications?
-        </p>
-
-        <VRow>
-          <VCol
-            cols="12"
-            sm="6"
+          <VAlert
+            :color="success ? 'success' : 'error'"
+            variant="tonal"
+            class="mb-4"
           >
-            <VSelect
-              v-model="selectedNotification"
-              mandatory
-              :items="['Only when I\'m online', 'Anytime']"
-            />
-          </VCol>
-        </VRow>
+            {{ success ? 'Configurações salvas com sucesso!' : error }}
+          </VAlert>
+        </VCol>
 
-        <div class="d-flex flex-wrap gap-4 mt-4">
-          <VBtn type="submit">
-            Save Changes
-          </VBtn>
+        <!-- Save Button -->
+        <VCol cols="12">
           <VBtn
-            color="secondary"
-            variant="outlined"
-            type="reset"
+            color="primary"
+            :loading="loading"
+            @click="handleSave"
           >
-            Reset
+            Salvar Preferências
           </VBtn>
-        </div>
-      </VForm>
+        </VCol>
+      </VRow>
     </VCardText>
   </VCard>
 </template>
+
+<style lang="scss" scoped>
+.v-checkbox {
+  margin-bottom: 8px;
+}
+</style>
