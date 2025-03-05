@@ -1,3 +1,4 @@
-import { useAuthStore } from "./auth/login";
+import { useAuthStore } from './auth/login'
+import { useMusclesStore } from './workouts/muscles'
 
-export { useAuthStore };
+export { useAuthStore, useMusclesStore }

@@ -31,6 +31,10 @@ export const routes = [
         path: 'form-layouts',
         component: () => import('@/pages/form-layouts.vue'),
       },
+      {
+        path: "workouts",
+        component: () => import('@/pages/workouts.vue'),
+      }
     ],
   },
   {

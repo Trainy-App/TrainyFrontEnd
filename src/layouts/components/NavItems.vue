@@ -2,6 +2,8 @@
 import VerticalNavSectionTitle from '@/@layouts/components/VerticalNavSectionTitle.vue'
 import VerticalNavGroup from '@layouts/components/VerticalNavGroup.vue'
 import VerticalNavLink from '@layouts/components/VerticalNavLink.vue'
+
+import { Dumbbell } from 'lucide-vue-next'
 </script>
 
 <template>
@@ -14,13 +16,19 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue'
   >
     <VerticalNavLink
       :item="{
+        title: 'Treinos',
+        to: '/default/workouts',
+        icon: Dumbbell,
+      }"
+    />
+    <VerticalNavLink
+      :item="{
         title: 'Analytics',
         to: '/default/dashboard',
       }"
     />
   </VerticalNavGroup>
 
-  <!-- 👉 Apps & Pages -->
   <VerticalNavSectionTitle
     :item="{
       heading: 'Apps & Pages',
