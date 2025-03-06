@@ -1,9 +1,10 @@
 <script setup>
 import { Trash, Save, XCircle, BicepsFlexed } from 'lucide-vue-next'
 import { ref, computed, onMounted } from 'vue'
-import { useMusclesStore } from '@/stores'
+import { useMusclesStore, useExerciciesStore } from '@/stores'
 
 const musclesStore = useMusclesStore()
+const exercisesStore = useExerciciesStore()
 
 const workout = ref({
   name: '',
@@ -13,7 +14,6 @@ const workout = ref({
   divisions: [],
 })
 
-const muscles = ref(musclesStore.state.muscles)
 
 const exercises = ref([
   { id: 1, name: 'Supino' },
@@ -23,12 +23,22 @@ const exercises = ref([
   { id: 5, name: 'Flexão' },
 ])
 
+const getRandomColor = () => {
+  const letters = '0123456789ABCDEF'
+  let color = '#'
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)]
+  }
+  return color
+}
+
 const addDivision = () => {
   workout.value.divisions.push({
     name: '',
     muscles: [],
     exercises: [],
     selectedExercise: null,
+    color: getRandomColor(), 
   })
 }
 
@@ -64,7 +74,8 @@ const isFormValid = computed(
 )
 
 onMounted(() => {
-  musclesStore.getMuscles()
+  musclesStore.getMuscles();
+  exercisesStore.getExercicies();
 })
 </script>
 
@@ -99,17 +110,19 @@ onMounted(() => {
           :key="index"
           class="border rounded-lg p-4 mb-4 bg-blue-lighten-5"
         >
-          <div class="title-section">
+          <!-- Título com cor aleatória -->
+          <div class="title-section" :style="{ backgroundColor: division.color }">
             <VIcon :icon="BicepsFlexed" />
             <h4>Divisão: {{ index + 1 }}</h4>
           </div>
+
           <VTextField
             v-model="division.name"
             label="Nome da Divisão"
             color="primary"
           />
 
-          <div class="title-section">
+          <div class="title-section" :style="{ backgroundColor: division.color }">
             <VIcon :icon="BicepsFlexed" />
             <h4>Músculos Trabalhados:</h4>
           </div>
@@ -131,11 +144,11 @@ onMounted(() => {
             color="primary"
           />
 
-          <div class="title-section">
+          <div class="title-section" :style="{ backgroundColor: division.color }">
             <VIcon :icon="BicepsFlexed" />
             <h4>Adicionar Exercícios:</h4>
           </div>
-          <VRow>
+          <VRow class="align-center">
             <VCol cols="8">
               <VSelect
                 label="Selecionar Exercício"
@@ -159,15 +172,16 @@ onMounted(() => {
           </VRow>
 
           <div v-if="division.exercises.length" class="mt-5">
-            <div class="title-section">
+            <div class="title-section" :style="{ backgroundColor: division.color }">
               <VIcon :icon="BicepsFlexed" />
               <h4>Exercícios Selecionados:</h4>
             </div>
             <VRow
               v-for="(exercise, exIndex) in division.exercises"
               :key="exIndex"
-              class="align-center  border rounded-lg my-2"
-            >
+              class="align-center border rounded-lg my-2"
+              style="margin-left: 1px;"
+              >
               <VCol cols="4">
                 <span>{{ exercises.find(e => e.id === exercise.id_exercise)?.name }}</span>
               </VCol>
@@ -238,10 +252,10 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 1rem;
-  background-color: #4169e1;
   padding: 0.5rem 1rem;
   width: fit-content;
   border-radius: 0.5rem;
   margin: 10px 0;
+  color: black !important;
 }
 </style>
