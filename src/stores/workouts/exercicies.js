@@ -11,16 +11,41 @@ export const useExerciciesStore = defineStore('exercicies', () => {
 
   const getExercicies = async () => {
     try {
-        const data = await ExerciciesService.getExercicies();
-        console.log(data);
-        state.exercicies = data || [];
+      const data = await ExerciciesService.getExercicies()
+      console.log(data)
+      state.exercicies = data || []
     } catch (error) {
-        console.error('Erro ao carregar exercícios:', error);
+      console.error('Erro ao carregar exercícios:', error)
     }
-};
+  }
+
+  const filterExercicies = muscleIds => {
+
+    let muscleIdsArray = []
+
+    for (const item of muscleIds) {
+      muscleIdsArray.push(item.id)
+    }
+    const filteredEx = []
+
+    for (const i of state.exercicies) {
+      for (const j of i.muscle) {
+        if (muscleIdsArray.includes(j)) {
+          filteredEx.push(i)
+        }
+      }
+    }
+
+
+
+    return filteredEx
+  }
 
   return {
     state,
     getExercicies,
+    filterExercicies,
   }
 })
+
+

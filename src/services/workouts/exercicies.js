@@ -9,6 +9,7 @@ class ExerciciesService {
         return error.response.data;
         }
     }
+
 }
 
 export default new ExerciciesService();

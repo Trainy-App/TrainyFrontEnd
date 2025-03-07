@@ -19,6 +19,7 @@ export const themes = {
       warning: '#FFB400',
       error: '#FF4C51',
       red: '#FF4C51',
+      white: "#fff" 
     },
   },
   dark: {
@@ -37,6 +38,7 @@ export const themes = {
       warning: '#FFB400',
       error: '#FF4C51',
       red: '#FF4C51',
+      white: "#fff"
     },
     variables: {
       'border-color': '#E7E3FC',
