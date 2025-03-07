@@ -1,29 +1,22 @@
 <script setup>
-import { Trash, Save, XCircle, BicepsFlexed, Dumbbell } from 'lucide-vue-next'
-import { ref, computed, onMounted, watch } from 'vue'
-import { useMusclesStore, useExerciciesStore } from '@/stores'
+import { useExerciciesStore, useMusclesStore, useWorkoutsStore } from '@/stores'
+import { BicepsFlexed, Dumbbell, Save, Trash, XCircle } from 'lucide-vue-next'
+import { computed, onMounted, ref } from 'vue'
 
 const musclesStore = useMusclesStore()
 const exercisesStore = useExerciciesStore()
+const workoutsStore = useWorkoutsStore()
 
 const workout = ref({
   name: '',
   description: '',
   date: new Date().toISOString().split('T')[0],
-  athlete: 5,
+  athlete: 3,
   divisions: [],
 })
 
 const numDivisions = ref(1)
-const showDivisionInput = ref(true) // Controla a exibição do input de divisões
-
-const exercises = ref([
-  { id: 1, name: 'Supino' },
-  { id: 2, name: 'Rosca Direta' },
-  { id: 3, name: 'Agachamento' },
-  { id: 4, name: 'Remada' },
-  { id: 5, name: 'Flexão' },
-])
+const showDivisionInput = ref(true)
 
 const getRandomColor = () => {
   const darkColors = [
@@ -57,7 +50,7 @@ const addDivisions = () => {
       color: getRandomColor(),
     })
   }
-  showDivisionInput.value = false // Esconde o input após criar as divisões
+  showDivisionInput.value = false
 }
 
 const removeDivision = index => {
@@ -75,7 +68,7 @@ const addExercise = divisionIndex => {
     }
   }
 
-  division.exercises.push({ id_exercise: division.selectedExercise, sets: 3, reps: 12, name: exName })
+  division.exercises.push({ id_exercicie: division.selectedExercise, sets: 3, reps: 12, name: exName })
 
   division.selectedExercise = null
 }
@@ -93,7 +86,7 @@ const clearWorkout = () => {
     divisions: [],
   }
   numDivisions.value = 1
-  showDivisionInput.value = true // Exibe o input de divisões novamente
+  showDivisionInput.value = true
 }
 
 const isFormValid = computed(
@@ -108,7 +101,6 @@ onMounted(() => {
 
 <template>
   <VRow>
-    <!-- {{ workout }} -->
     <VCol cols="12">
       <VCard class="border rounded-lg p-4 mb-4">
         <div
@@ -125,11 +117,11 @@ onMounted(() => {
           <VRow class="align-center my-2 gap-1">
             <VCol cols="2">
               <div
-          class="title-section-align"
-          :style="{ backgroundColor: '#4169E1' }"
+                class="title-section-align"
+                :style="{ backgroundColor: '#4169E1' }"
               >
-          <VIcon :icon="BicepsFlexed" />
-          <h4>Nome do Treino: </h4>
+                <VIcon :icon="BicepsFlexed" />
+                <h4>Nome do Treino:</h4>
               </div>
             </VCol>
             <VTextField
@@ -138,15 +130,15 @@ onMounted(() => {
               color="primary"
             />
           </VRow>
-          
+
           <VRow class="align-center my-2 gap-1">
             <VCol cols="2">
               <div
-          class="title-section-align"
-          :style="{ backgroundColor: '#4169E1' }"
+                class="title-section-align"
+                :style="{ backgroundColor: '#4169E1' }"
               >
-          <VIcon :icon="BicepsFlexed" />
-          <h4>Descrição do Treino: </h4>
+                <VIcon :icon="BicepsFlexed" />
+                <h4>Descrição do Treino:</h4>
               </div>
             </VCol>
             <VTextField
@@ -155,15 +147,15 @@ onMounted(() => {
               color="primary"
             />
           </VRow>
-          
+
           <VRow class="align-center my-2 gap-1">
             <VCol cols="2">
               <div
-          class="title-section-align"
-          :style="{ backgroundColor: '#4169E1' }"
+                class="title-section-align"
+                :style="{ backgroundColor: '#4169E1' }"
               >
-          <VIcon :icon="BicepsFlexed" />
-          <h4>Quantidade de Divisões: </h4>
+                <VIcon :icon="BicepsFlexed" />
+                <h4>Quantidade de Divisões:</h4>
               </div>
             </VCol>
             <VTextField
@@ -176,11 +168,11 @@ onMounted(() => {
             />
             <VCol cols="6">
               <VBtn
-          color="primary"
-          @click="addDivisions"
-          :disabled="workout.divisions.length >= 1"
-
-              >Criar Divisões</VBtn>
+                color="primary"
+                @click="addDivisions"
+                :disabled="workout.divisions.length >= 1"
+                >Criar Divisões</VBtn
+              >
             </VCol>
           </VRow>
         </VCardText>
@@ -190,7 +182,6 @@ onMounted(() => {
           :key="index"
           class="border rounded-lg p-4 mb-4 bg-blue-lighten-5"
         >
-        
           <VRow class="align-center my-5 gap-1">
             <VCol cols="2">
               <div
@@ -233,8 +224,6 @@ onMounted(() => {
               @update:modelValue="exercisesStore.filterExercicies(division.muscles)"
             />
           </VRow>
-
-        
 
           <VRow class="align-center my-5 gap-1">
             <VCol cols="2">
@@ -328,10 +317,13 @@ onMounted(() => {
 
         <VDivider color="primary" />
 
-        <VCardText class="d-flex justify-space-between mt-5" v-if="workout.divisions.length >= 1">
+        <VCardText
+          class="d-flex justify-space-between mt-5"
+          v-if="workout.divisions.length >= 1"
+        >
           <VBtn
             color="green"
-            @click="console.log(workout)"
+            @click="workoutsStore.createWorkout({...workout})"
           >
             <VIcon :icon="Save" /> Criar Treino
           </VBtn>

@@ -52,7 +52,7 @@ import UserProfile from '@/layouts/components/UserProfile.vue'
           <VIcon icon="ri-notification-line" />
         </IconBtn>
 
-        <NavbarThemeSwitcher class="me-2" />
+        <!-- <NavbarThemeSwitcher class="me-2" /> -->
 
         <UserProfile />
       </div>
@@ -82,10 +82,8 @@ import UserProfile from '@/layouts/components/UserProfile.vue'
       <NavItems />
     </template>
 
-    <!-- 👉 Pages -->
     <slot />
 
-    <!-- 👉 Footer -->
     <template #footer>
       <Footer />
     </template>
